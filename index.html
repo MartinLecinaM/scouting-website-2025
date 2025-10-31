@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600&display=swap" rel="stylesheet">
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scouting Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav>
+    <button class="tab-button" data-tab="leaderboard">Leaderboard</button>
+    <button class="tab-button" data-tab="team">Team View</button>
+    <button class="tab-button" data-tab="strategy">Strategy</button>
+  </nav>
+
+  <!-- Sections -->
+
+
+  <!-- Team View tab -->
+  <section id="team" class="tab-content">
+    <h1>Team View</h1>
+    <p>Shows team-specific data</p>
+
+    <select id="team-select"></select>
+
+    <div class="team-content">
+      <table id="team-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Value</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <div id="teamChartContainer">
+        <label for="metric-select">Metric:</label>
+        <select id="metric-select"></select>
+        <canvas id="teamLineChart"></canvas>
+      </div>
+    </div>
+
+
+
+    <h3>Match Performance</h3>
+    <table id="matchTable">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+
+
+    
+
+  </section>
+
+  <!-- Strategy tab -->
+<section id="strategy" class="tab-content">
+  <h1>Strategy</h1>
+  <p>Pick a match and alliance to calculate alliance averages.</p>
+
+  <!-- Row 1: Match select (left) + Alliance select (right) -->
+  <div class="strategy-row">
+    <div class="strategy-left">
+      <label for="strategy-match">Match:</label>
+      <select id="strategy-match"></select>
+    </div>
+    <div class="strategy-right">
+      <label for="strategy-side">Side:</label>
+      <select id="strategy-side">
+        <option value="Red">Red</option>
+        <option value="Blue">Blue</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- The strategy table -->
+  <div class="strategy-table-wrapper">
+    <table id="strategy-table">
+      <tbody id="strategy-body">
+        <!-- Row 2: static alliance headers -->
+        <tr>
+          <th colspan="3" class="alliance-header">Red</th>
+          <th colspan="3" class="alliance-header">Blue</th>
+        </tr>
+
+        <!-- Row 3: teams -->
+        <tr id="strategy-teams-row">
+          <td class="team-cell" data-index="0">—</td>
+          <td class="team-cell" data-index="1">—</td>
+          <td class="team-cell" data-index="2">—</td>
+          <td class="team-cell" data-index="3">—</td>
+          <td class="team-cell" data-index="4">—</td>
+          <td class="team-cell" data-index="5">—</td>
+        </tr>
+
+        <tr id="strategy-total-points-title-row">
+          <td colspan="3">Total Points</td>
+          <td colspan="3">Total Points</td>
+        </tr>
+
+        <!-- Row 4: averages (Total Points) -->
+        <tr id="strategy-avg-row">
+          <td class="avg-cell" data-index="0">#N/A</td>
+          <td class="avg-cell" data-index="1">#N/A</td>
+          <td class="avg-cell" data-index="2">#N/A</td>
+          <td class="avg-cell" data-index="3">#N/A</td>
+          <td class="avg-cell" data-index="4">#N/A</td>
+          <td class="avg-cell" data-index="5">#N/A</td>
+        </tr>
+
+        <tr id="strategy-alliance-total-title-row">
+          <td colspan="3">Alliance Total</td>
+          <td colspan="3">Alliance Total</td>
+        </tr>
+
+        <!-- Row 5: totals: left (colspan 3) and right (colspan 3) -->
+        <tr id="strategy-sum-row">
+          <td colspan="3" id="strategy-red-sum">#N/A</td>
+          <td colspan="3" id="strategy-blue-sum">#N/A</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+  <!-- Leaderboard tab -->
+  
+
+  <section id="leaderboard" class="tab-content">
+    <h1>Leaderboard</h1>
+    <p>Ranks teams based on specified averages</p>
+
+    <select id="category-select">
+        <option value="Total Points">Total Points</option>
+        <option value="Teleop Points">Teleop Points</option>
+        <option value="Auto Points">Auto Points</option>
+        <option value="Total Coral">Total Coral</option>
+        <option value="L4">L4</option>
+        <option value="L3">L3</option>
+        <option value="L2">L2</option>
+        <option value="L1">L1</option>
+        <option value="Coral Drops">Coral Drops</option>
+        <option value="Processor">Processor</option>
+        <option value="Net">Net</option>
+        <option value="Deep Climb">Deep Climb</option>
+        <option value="Shallow Climb">Shallow Climb</option>
+        <option value="Defends">Defends</option>
+    </select>
+    <div class="leaderboard-content">
+        <div class="leaderboardTable-container">
+            <table id="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Team</th>
+                        <th>Average</th>
+                        <th id="leaderboard-header" style="cursor: pointer;"> <span id="toggle-arrow" class="arrow">▼</span> </th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body"></tbody>
+            </table>
+        </div>
+        <div class="chart-container">
+            <canvas id="leaderboardChart"></canvas>
+        </div>
+    </div>
+
+  </section>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const header = document.getElementById("leaderboard-header");
+    const body = document.getElementById("leaderboard-body");
+    const arrow = document.getElementById("toggle-arrow");
+
+    if (header && body && arrow) {
+      header.addEventListener('click', () => {
+        const isHidden = body.style.display === 'none';
+        body.style.display = isHidden ? 'table-row-group' : 'none';
+        arrow.textContent = isHidden ? '▼' : '▼';
+
+        arrow.classList.toggle('collapsed', !isHidden); // rotate when collapsed ►
+      });
+    } else {
+    console.warn('One or more elements not found in the DOM');
+    }
+});
+  </script>
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
