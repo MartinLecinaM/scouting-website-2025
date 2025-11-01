@@ -47,7 +47,8 @@ function parseCSV(text){
       else if (value === "#N/A") obj[h] = "#N/A";
       else {
         const n = Number(value);
-        obj[h] = !isNaN(n) ? Math.round(n) : value;
+        obj[h] = !isNaN(n) ? Number(n.toFixed(2)) : value;
+
       }
     });
     return obj;
@@ -145,6 +146,7 @@ function displayTeamMatches(teamNumber) {
     headers.forEach(h => {
       let v = row[h];
       if (v === "" || v === undefined || v === null || v === "#N/A") v = "#N/A";
+      else if (typeof v === "number") v = v.toFixed(0);
       const td = document.createElement("td");
       td.textContent = v;
       tr.appendChild(td);
